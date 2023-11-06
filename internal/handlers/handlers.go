@@ -91,7 +91,7 @@ func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ListMetricsHandler(w http.ResponseWriter, r *http.Request) {
+func ListMetricsHandler(w http.ResponseWriter, _ *http.Request) {
 	gauges, counters := repo.GetAllMetrics()
 
 	w.Header().Set("Content-Type", "text/html")
