@@ -19,19 +19,10 @@ type MetricsData struct {
 var tmpl = template.Must(template.ParseFiles("../../templates/metrics.html"))
 
 func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
 	vars := mux.Vars(r)
 	metricType := vars["type"]
 	metricName := vars["name"]
 	metricValue := vars["value"]
-
-	if metricName == "" {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
 
 	switch metricType {
 	case "gauge":

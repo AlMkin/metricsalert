@@ -15,9 +15,9 @@ func NewServer() *Server {
 	return &Server{router: router}
 }
 
-func (s *Server) Run(port string) error {
+func (s *Server) Run(addr string) error {
 	s.router.HandleFunc("/update/{type}/{name}/{value}", handlers.UpdateMetricsHandler).Methods(http.MethodPost)
 	s.router.HandleFunc("/value/{type}/{name}", handlers.GetMetricsHandler).Methods(http.MethodGet)
 	s.router.HandleFunc("/", handlers.ListMetricsHandler).Methods(http.MethodGet)
-	return http.ListenAndServe(port, s.router)
+	return http.ListenAndServe(addr, s.router)
 }
