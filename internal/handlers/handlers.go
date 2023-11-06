@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/AlMkin/metricsalert/internal/storage"
 	"github.com/go-chi/chi/v5"
-	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -16,7 +15,7 @@ type MetricsData struct {
 	Counters map[string]int64
 }
 
-var tmpl = template.Must(template.ParseFiles("../../templates/metrics.html"))
+//var tmpl = template.Must(template.ParseFiles("../../templates/metrics.html"))
 
 func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	metricType := chi.URLParam(r, "type")
@@ -90,18 +89,18 @@ func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListMetricsHandler(w http.ResponseWriter, _ *http.Request) {
-	gauges, counters := repo.GetAllMetrics()
+	//gauges, counters := repo.GetAllMetrics()
 
 	w.Header().Set("Content-Type", "text/html")
 
-	data := MetricsData{
-		Gauges:   gauges,
-		Counters: counters,
-	}
-	err := tmpl.Execute(w, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	//data := MetricsData{
+	//	Gauges:   gauges,
+	//	Counters: counters,
+	//}
+	//err := tmpl.Execute(w, data)
+	//if err != nil {
+	//	http.Error(w, err.Error(), http.StatusInternalServerError)
+	//}
 }
 
 func SetRepository(storage storage.Repository) {
