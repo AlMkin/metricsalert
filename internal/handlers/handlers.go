@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/AlMkin/metricsalert/internal/storage"
 	"github.com/go-chi/chi/v5"
-	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -15,8 +14,6 @@ type MetricsData struct {
 	Gauges   map[string]float64
 	Counters map[string]int64
 }
-
-var tmpl = template.Must(template.ParseFiles("../../templates/metrics.html"))
 
 func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	metricType := chi.URLParam(r, "type")
@@ -93,12 +90,22 @@ func ListMetricsHandler(w http.ResponseWriter, _ *http.Request) {
 	gauges, counters := repo.GetAllMetrics()
 
 	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
 
-	data := MetricsData{
-		Gauges:   gauges,
-		Counters: counters,
+	htmlStart := `<!DOCTYPE html><html lang="en"><body><h1>Metrics</h1><ul>`
+	htmlGauges := ""
+	for name, value := range gauges {
+		htmlGauges += fmt.Sprintf("<li>%s (gauge): %.2f</li>", name, value)
 	}
-	err := tmpl.Execute(w, data)
+	htmlCounters := ""
+	for name, value := range counters {
+		htmlCounters += fmt.Sprintf("<li>%s (counter): %d</li>", name, value)
+	}
+	htmlEnd := `</ul></body></html>`
+
+	fullHtml := htmlStart + htmlGauges + htmlCounters + htmlEnd
+
+	_, err := w.Write([]byte(fullHtml))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
