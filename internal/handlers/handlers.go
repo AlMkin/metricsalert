@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 	"github.com/AlMkin/metricsalert/internal/storage"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -19,10 +19,9 @@ type MetricsData struct {
 var tmpl = template.Must(template.ParseFiles("../../templates/metrics.html"))
 
 func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	metricType := vars["type"]
-	metricName := vars["name"]
-	metricValue := vars["value"]
+	metricType := chi.URLParam(r, "type")
+	metricName := chi.URLParam(r, "name")
+	metricValue := chi.URLParam(r, "value")
 
 	switch metricType {
 	case "gauge":
@@ -50,9 +49,8 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	metricType := vars["type"]
-	metricName := vars["name"]
+	metricType := chi.URLParam(r, "type")
+	metricName := chi.URLParam(r, "name")
 
 	var valueStr string
 	var err error

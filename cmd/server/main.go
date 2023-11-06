@@ -10,7 +10,7 @@ import (
 
 func main() {
 	var addr string
-	flag.StringVar(&addr, "a", "localhost:8080", "Address to listen on")
+	flag.StringVar(&addr, "a", "http://localhost:8080", "Address to listen on")
 	flag.Parse()
 
 	store := storage.NewMemStorage()
