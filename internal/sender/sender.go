@@ -26,10 +26,14 @@ func NewSender(serverAddress string) *Sender {
 func (s *Sender) Send(metrics []metrics.Metric) {
 	for _, m := range metrics {
 		body := bytes.NewBufferString(fmt.Sprintf("%s/update/%s/%s/%f", s.serverAddress, m.Type, m.Name, m.Value))
-		_, err := http.Post(body.String(), "text/plain", nil)
+		response, err := http.Post(body.String(), "text/plain", nil)
 		if err != nil {
 			fmt.Println("Error sending metrics:", err)
 			continue
+		}
+		err = response.Body.Close()
+		if err != nil {
+			return
 		}
 	}
 }
