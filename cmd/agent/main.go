@@ -1,33 +1,27 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"github.com/AlMkin/metricsalert/internal/agent"
+	"github.com/AlMkin/metricsalert/internal/config"
 	"github.com/AlMkin/metricsalert/internal/metrics"
 	"github.com/AlMkin/metricsalert/internal/sender"
 	"github.com/AlMkin/metricsalert/pkg/runtimeinfo"
-	"os"
-	"time"
+	"log"
 )
 
 func main() {
-	serverAddress := flag.String("a", "http://localhost:8080", "address of the metrics server")
-	reportIntervalSeconds := flag.Int("r", 10, "report interval in seconds")
-	pollIntervalSeconds := flag.Int("p", 2, "poll interval in seconds")
+	cfg := config.GetConfig()
 
-	flag.Parse()
-
-	if flag.NArg() > 0 {
-		fmt.Println("Error: unknown flags provided")
-		flag.Usage()
-		os.Exit(1)
-	}
-
-	newSender := sender.NewSender(*serverAddress)
+	newSender := sender.NewSender(cfg.Address)
 	metricsGetter := &runtimeinfo.Getter{}
 
 	collector := metrics.NewCollector(metricsGetter)
-	a := agent.NewAgent(newSender, collector, time.Duration(*pollIntervalSeconds)*time.Second, time.Duration(*reportIntervalSeconds)*time.Second)
+	a := agent.NewAgent(newSender, collector, cfg.PollInterval, cfg.ReportInterval)
+
+	log.Println("Agent started with the following parameters:")
+	log.Printf("ADDRESS: %s", cfg.Address)
+	log.Printf("REPORT_INTERVAL: %v", cfg.ReportInterval)
+	log.Printf("POLL_INTERVAL: %v", cfg.PollInterval)
+
 	a.Run()
 }
