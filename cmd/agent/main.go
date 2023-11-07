@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	serverAddress := flag.String("a", "http://localhost:8080", "address of the metrics server")
+	serverAddress := flag.String("a", "localhost:8080", "address of the metrics server")
 	reportIntervalSeconds := flag.Int("r", 10, "report interval in seconds")
 	pollIntervalSeconds := flag.Int("p", 2, "poll interval in seconds")
 

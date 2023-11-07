@@ -15,7 +15,7 @@ type Collector struct {
 	metrics       []Metric
 	pollCount     int64
 	randomValue   float64
-	metricsGetter Getter // Добавляем это поле для инъекции зависимостей
+	metricsGetter Getter
 }
 
 type Getter interface {
@@ -24,8 +24,8 @@ type Getter interface {
 
 func NewCollector(metricsGetter Getter) *Collector {
 	return &Collector{
-		randomValue:   rand.Float64(), // Инициализация случайным значением
-		metricsGetter: metricsGetter,  // Используем инъекцию зависимостей
+		randomValue:   rand.Float64(),
+		metricsGetter: metricsGetter,
 	}
 }
 
