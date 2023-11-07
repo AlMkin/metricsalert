@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var addrFlag string
-	flag.StringVar(&addrFlag, "a", "", "Address to listen on (overrides ADDRESS environment variable)")
+	flag.StringVar(&addrFlag, "a", ":8080", "Address to listen on (overrides ADDRESS environment variable)")
 	flag.Parse()
 
 	cfg := config.GetServerConfig(addrFlag)
