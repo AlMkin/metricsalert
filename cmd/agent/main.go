@@ -1,3 +1,4 @@
+// main.go для агента
 package main
 
 import (
@@ -6,21 +7,11 @@ import (
 	"github.com/AlMkin/metricsalert/internal/agent"
 	"github.com/AlMkin/metricsalert/internal/metrics"
 	"github.com/AlMkin/metricsalert/internal/sender"
+	"github.com/AlMkin/metricsalert/pkg/config"
 	"github.com/AlMkin/metricsalert/pkg/runtimeinfo"
 	"os"
-	"strconv"
 	"time"
 )
-
-func getEnvOrFlag(envKey string, flagVal *int, defaultVal int) int {
-	if value, exists := os.LookupEnv(envKey); exists {
-		if intValue, err := strconv.Atoi(value); err == nil {
-			return intValue
-		}
-		fmt.Printf("Warning: could not parse %s, using default %d\n", envKey, defaultVal)
-	}
-	return *flagVal
-}
 
 func main() {
 	serverAddressFlag := flag.String("a", "localhost:8080", "address of the metrics server")
@@ -35,12 +26,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	serverAddress := os.Getenv("ADDRESS")
-	if serverAddress == "" {
-		serverAddress = *serverAddressFlag
-	}
-	reportIntervalSeconds := getEnvOrFlag("REPORT_INTERVAL", reportIntervalFlag, 10)
-	pollIntervalSeconds := getEnvOrFlag("POLL_INTERVAL", pollIntervalFlag, 2)
+	serverAddress := config.GetEnvOrDefault("ADDRESS", *serverAddressFlag)
+	reportIntervalSeconds := config.GetEnvOrFlagInt("REPORT_INTERVAL", reportIntervalFlag, 10)
+	pollIntervalSeconds := config.GetEnvOrFlagInt("POLL_INTERVAL", pollIntervalFlag, 2)
 
 	newSender := sender.NewSender(serverAddress)
 	metricsGetter := &runtimeinfo.Getter{}

@@ -5,19 +5,15 @@ import (
 	"github.com/AlMkin/metricsalert/internal/handlers"
 	"github.com/AlMkin/metricsalert/internal/server"
 	"github.com/AlMkin/metricsalert/internal/storage"
-	"os"
+	"github.com/AlMkin/metricsalert/pkg/config"
 )
 
 func main() {
 	var addrFlag string
-
 	flag.StringVar(&addrFlag, "a", ":8080", "Address to listen on")
 	flag.Parse()
 
-	addr := os.Getenv("ADDRESS")
-	if addr == "" {
-		addr = addrFlag
-	}
+	addr := config.GetEnvOrDefault("ADDRESS", addrFlag)
 
 	store := storage.NewMemStorage()
 	handlers.SetRepository(store)
