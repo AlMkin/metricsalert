@@ -97,9 +97,9 @@ func ListMetricsHandler(w http.ResponseWriter, _ *http.Request) {
 	}
 	htmlEnd := `</ul></body></html>`
 
-	fullHtml := htmlStart + htmlGauges + htmlCounters + htmlEnd
+	fullHTML := htmlStart + htmlGauges + htmlCounters + htmlEnd // Corrected variable name
 
-	_, err := w.Write([]byte(fullHtml))
+	_, err := w.Write([]byte(fullHTML))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
