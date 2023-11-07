@@ -17,12 +17,13 @@ func main() {
 	cfg := config.GetServerConfig(addrFlag)
 
 	store := storage.NewMemStorage()
-	srv := server.NewServer()
 
 	handlers.SetRepository(store)
 
+	srv := server.NewServer()
+
 	log.Printf("Server is starting at %s\n", cfg.Address)
 	if err := srv.Run(cfg.Address); err != nil {
-		log.Fatalf("Error when running server: %s", err)
+		panic(err)
 	}
 }

@@ -2,22 +2,22 @@ package server
 
 import (
 	"github.com/AlMkin/metricsalert/internal/handlers"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
 type Server struct {
-	router *mux.Router
+	router *chi.Mux
 }
 
 func NewServer() *Server {
-	router := mux.NewRouter()
+	router := chi.NewRouter()
 	return &Server{router: router}
 }
 
 func (s *Server) Run(addr string) error {
-	s.router.HandleFunc("/update/{type}/{name}/{value}", handlers.UpdateMetricsHandler).Methods(http.MethodPost)
-	s.router.HandleFunc("/value/{type}/{name}", handlers.GetMetricsHandler).Methods(http.MethodGet)
-	s.router.HandleFunc("/", handlers.ListMetricsHandler).Methods(http.MethodGet)
+	s.router.Post("/update/{type}/{name}/{value}", handlers.UpdateMetricsHandler)
+	s.router.Get("/value/{type}/{name}", handlers.GetMetricsHandler)
+	s.router.Get("/", handlers.ListMetricsHandler)
 	return http.ListenAndServe(addr, s.router)
 }

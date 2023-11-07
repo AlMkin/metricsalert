@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/AlMkin/metricsalert/internal/storage"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -20,8 +20,8 @@ func TestUpdateMetricsHandler(t *testing.T) {
 	memStorage := storage.NewMemStorage()
 	SetRepository(memStorage)
 
-	r := mux.NewRouter()
-	r.HandleFunc("/update/{type}/{name}/{value}", UpdateMetricsHandler).Methods(http.MethodPost)
+	r := chi.NewRouter()
+	r.Post("/update/{type}/{name}/{value}", UpdateMetricsHandler)
 
 	testCases := []struct {
 		name            string
@@ -73,8 +73,8 @@ func TestGetMetricsHandler(t *testing.T) {
 	memStorage := storage.NewMemStorage()
 	SetRepository(memStorage)
 
-	r := mux.NewRouter()
-	r.HandleFunc("/value/{type}/{name}", GetMetricsHandler).Methods(http.MethodGet)
+	r := chi.NewRouter()
+	r.Get("/value/{type}/{name}", GetMetricsHandler)
 
 	// Добавляем реальные значения в хранилище
 	memStorage.SaveGauge("testGauge", 42.42)
@@ -86,7 +86,7 @@ func TestGetMetricsHandler(t *testing.T) {
 		expectedStatus int
 		expectedBody   string
 	}{
-		{"ExistingGauge", "/value/gauge/testGauge", http.StatusOK, "42.420000"},
+		{"ExistingGauge", "/value/gauge/testGauge", http.StatusOK, "42.42"},
 		{"NonExistingGauge", "/value/gauge/nonExisting", http.StatusNotFound, ""},
 		{"ExistingCounter", "/value/counter/testCounter", http.StatusOK, "100"},
 		{"NonExistingCounter", "/value/counter/nonExisting", http.StatusNotFound, ""},
