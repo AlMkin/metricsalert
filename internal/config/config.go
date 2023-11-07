@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DefaultAddress        = "localhost:8080"
+	DefaultAddress        = ":8080"
 	DefaultReportInterval = 10
 	DefaultPollInterval   = 2
 )
