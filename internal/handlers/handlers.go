@@ -3,8 +3,7 @@ package handlers
 import (
 	"fmt"
 	"github.com/AlMkin/metricsalert/internal/storage"
-	"github.com/gorilla/mux"
-	"html/template"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
 )
@@ -16,13 +15,10 @@ type MetricsData struct {
 	Counters map[string]int64
 }
 
-var tmpl = template.Must(template.ParseFiles("../../templates/metrics.html"))
-
 func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	metricType := vars["type"]
-	metricName := vars["name"]
-	metricValue := vars["value"]
+	metricType := chi.URLParam(r, "type")
+	metricName := chi.URLParam(r, "name")
+	metricValue := chi.URLParam(r, "value")
 
 	switch metricType {
 	case "gauge":
@@ -50,12 +46,8 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	metricType := vars["type"]
-	metricName := vars["name"]
-
-	var valueStr string
-	var err error
+	metricType := chi.URLParam(r, "type")
+	metricName := chi.URLParam(r, "name")
 
 	switch metricType {
 	case "gauge":
@@ -64,8 +56,9 @@ func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		_, err := fmt.Fprintf(w, "%f", value)
+		_, err := fmt.Fprintf(w, "%g", value)
 		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -77,17 +70,13 @@ func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		_, err := fmt.Fprintf(w, "%d", value)
 		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 	default:
 		w.WriteHeader(http.StatusBadRequest)
-	}
-
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write([]byte(valueStr))
-	if err != nil {
-		fmt.Println(err)
+		return
 	}
 }
 
@@ -95,12 +84,22 @@ func ListMetricsHandler(w http.ResponseWriter, _ *http.Request) {
 	gauges, counters := repo.GetAllMetrics()
 
 	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
 
-	data := MetricsData{
-		Gauges:   gauges,
-		Counters: counters,
+	htmlStart := `<!DOCTYPE html><html lang="en"><body><h1>Metrics</h1><ul>`
+	htmlGauges := ""
+	for name, value := range gauges {
+		htmlGauges += fmt.Sprintf("<li>%s (gauge): %.2f</li>", name, value)
 	}
-	err := tmpl.Execute(w, data)
+	htmlCounters := ""
+	for name, value := range counters {
+		htmlCounters += fmt.Sprintf("<li>%s (counter): %d</li>", name, value)
+	}
+	htmlEnd := `</ul></body></html>`
+
+	fullHTML := htmlStart + htmlGauges + htmlCounters + htmlEnd
+
+	_, err := w.Write([]byte(fullHTML))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
