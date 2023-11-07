@@ -86,7 +86,7 @@ func TestGetMetricsHandler(t *testing.T) {
 		expectedStatus int
 		expectedBody   string
 	}{
-		{"ExistingGauge", "/value/gauge/testGauge", http.StatusOK, "42.420000"},
+		{"ExistingGauge", "/value/gauge/testGauge", http.StatusOK, "42.42"},
 		{"NonExistingGauge", "/value/gauge/nonExisting", http.StatusNotFound, ""},
 		{"ExistingCounter", "/value/counter/testCounter", http.StatusOK, "100"},
 		{"NonExistingCounter", "/value/counter/nonExisting", http.StatusNotFound, ""},

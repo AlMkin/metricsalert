@@ -49,9 +49,6 @@ func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	metricType := chi.URLParam(r, "type")
 	metricName := chi.URLParam(r, "name")
 
-	var valueStr string
-	var err error
-
 	switch metricType {
 	case "gauge":
 		value, ok := repo.GetGauge(metricName)
@@ -59,8 +56,9 @@ func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		_, err := fmt.Fprintf(w, "%f", value)
+		_, err := fmt.Fprintf(w, "%g", value)
 		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -72,17 +70,13 @@ func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		_, err := fmt.Fprintf(w, "%d", value)
 		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 	default:
 		w.WriteHeader(http.StatusBadRequest)
-	}
-
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write([]byte(valueStr))
-	if err != nil {
-		fmt.Println(err)
+		return
 	}
 }
 
