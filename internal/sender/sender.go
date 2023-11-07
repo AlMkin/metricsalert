@@ -5,23 +5,30 @@ import (
 	"fmt"
 	"github.com/AlMkin/metricsalert/internal/metrics"
 	"net/http"
+	"strings"
 )
 
 type Sender struct {
 	serverAddress string
 }
-
 type MetricSender interface {
 	Send(metrics []metrics.Metric)
 }
 
+var _ MetricSender = (*Sender)(nil)
+
 func NewSender(serverAddress string) *Sender {
 	return &Sender{
-		serverAddress: serverAddress,
+		serverAddress: ensureHTTPPrefix(serverAddress),
 	}
 }
 
-var _ MetricSender = (*Sender)(nil)
+func ensureHTTPPrefix(serverAddress string) string {
+	if !strings.HasPrefix(serverAddress, "http://") && !strings.HasPrefix(serverAddress, "https://") {
+		return "http://" + serverAddress
+	}
+	return serverAddress
+}
 
 func (s *Sender) Send(metrics []metrics.Metric) {
 	for _, m := range metrics {
