@@ -97,7 +97,7 @@ func ListMetricsHandler(w http.ResponseWriter, _ *http.Request) {
 	}
 	htmlEnd := `</ul></body></html>`
 
-	fullHTML := htmlStart + htmlGauges + htmlCounters + htmlEnd // Corrected variable name
+	fullHTML := htmlStart + htmlGauges + htmlCounters + htmlEnd
 
 	_, err := w.Write([]byte(fullHTML))
 	if err != nil {
