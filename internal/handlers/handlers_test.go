@@ -1,6 +1,7 @@
-package handlers
+package handlers_test
 
 import (
+	"github.com/AlMkin/metricsalert/internal/handlers"
 	"github.com/AlMkin/metricsalert/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"net/http"
@@ -18,10 +19,10 @@ func pointerToFloat64(value float64) *float64 {
 
 func TestUpdateMetricsHandler(t *testing.T) {
 	memStorage := storage.NewMemStorage()
-	SetRepository(memStorage)
+	handlers.SetRepository(memStorage)
 
 	r := chi.NewRouter()
-	r.Post("/update/{type}/{name}/{value}", UpdateMetricsHandler)
+	r.Post("/update/{type}/{name}/{value}", handlers.UpdateMetricsHandler)
 
 	testCases := []struct {
 		name            string
@@ -64,17 +65,17 @@ func TestUpdateMetricsHandler(t *testing.T) {
 
 			// Сброс состояния хранилища перед следующим тестом
 			memStorage = storage.NewMemStorage()
-			SetRepository(memStorage)
+			handlers.SetRepository(memStorage)
 		})
 	}
 }
 
 func TestGetMetricsHandler(t *testing.T) {
 	memStorage := storage.NewMemStorage()
-	SetRepository(memStorage)
+	handlers.SetRepository(memStorage)
 
 	r := chi.NewRouter()
-	r.Get("/value/{type}/{name}", GetMetricsHandler)
+	r.Get("/value/{type}/{name}", handlers.GetMetricsHandler)
 
 	// Добавляем реальные значения в хранилище
 	memStorage.SaveGauge("testGauge", 42.42)

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"github.com/AlMkin/metricsalert/internal/config"
 	"github.com/AlMkin/metricsalert/internal/handlers"
 	"github.com/AlMkin/metricsalert/internal/server"
@@ -10,11 +9,7 @@ import (
 )
 
 func main() {
-	var addrFlag string
-	flag.StringVar(&addrFlag, "a", ":8080", "Address to listen on (overrides ADDRESS environment variable)")
-	flag.Parse()
-
-	cfg := config.GetServerConfig(addrFlag)
+	cfg := config.GetConfig()
 
 	store := storage.NewMemStorage()
 

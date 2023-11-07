@@ -1,8 +1,10 @@
 package config
 
 import (
+	"flag"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -26,7 +28,20 @@ func getEnvAsInt(name string, defaultValue int) int {
 	return defaultValue
 }
 
+func ensureHTTPPrefix(serverAddress string) string {
+	if !strings.HasPrefix(serverAddress, "http://") && !strings.HasPrefix(serverAddress, "https://") {
+		return "http://" + serverAddress
+	}
+	return serverAddress
+}
+
 func GetConfig() Config {
+	serverAddressPtr := flag.String("a", "", "address of the metrics server")
+	reportIntervalPtr := flag.Int("r", DefaultReportInterval, "report interval in seconds")
+	pollIntervalPtr := flag.Int("p", DefaultPollInterval, "poll interval in seconds")
+
+	flag.Parse()
+
 	address := os.Getenv("ADDRESS")
 	if address == "" {
 		address = DefaultAddress
@@ -34,19 +49,19 @@ func GetConfig() Config {
 	reportInterval := time.Duration(getEnvAsInt("REPORT_INTERVAL", DefaultReportInterval)) * time.Second
 	pollInterval := time.Duration(getEnvAsInt("POLL_INTERVAL", DefaultPollInterval)) * time.Second
 
+	if *serverAddressPtr != "" {
+		address = ensureHTTPPrefix(*serverAddressPtr)
+	}
+	if *reportIntervalPtr != DefaultReportInterval {
+		reportInterval = time.Duration(*reportIntervalPtr) * time.Second
+	}
+	if *pollIntervalPtr != DefaultPollInterval {
+		pollInterval = time.Duration(*pollIntervalPtr) * time.Second
+	}
+
 	return Config{
 		Address:        address,
 		ReportInterval: reportInterval,
 		PollInterval:   pollInterval,
 	}
-}
-
-func GetServerConfig(cmdLineAddr string) Config {
-	config := GetConfig()
-
-	if cmdLineAddr != "" {
-		config.Address = cmdLineAddr
-	}
-
-	return config
 }

@@ -1,6 +1,7 @@
-package metrics
+package metrics_test
 
 import (
+	"github.com/AlMkin/metricsalert/internal/metrics"
 	"github.com/AlMkin/metricsalert/pkg/runtimeinfo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -28,16 +29,16 @@ func TestCollectorCollect(t *testing.T) {
 	}
 	mockGetter.On("GetRuntimeMetrics").Return(expectedStats)
 
-	collector := NewCollector(mockGetter)
+	collector := metrics.NewCollector(mockGetter)
 	collector.Collect()
 
-	metrics := collector.GetMetrics()
-	assert.NotEmpty(t, metrics, "Metrics should not be empty after collection")
+	getMetrics := collector.GetMetrics()
+	assert.NotEmpty(t, getMetrics, "Metrics should not be empty after collection")
 
 	// Проверяем, что метрика PollCount увеличивается с каждым вызовом Collect.
 	expectedPollCount := 1.0
 	foundPollCountMetric := false
-	for _, metric := range metrics {
+	for _, metric := range getMetrics {
 		if metric.Name == "PollCount" {
 			foundPollCountMetric = true
 			assert.Equal(t, expectedPollCount, metric.Value, "PollCount metric value should be incremented")
