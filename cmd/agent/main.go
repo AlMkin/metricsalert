@@ -13,9 +13,10 @@ func main() {
 	cfg := config.GetConfig()
 
 	newSender := sender.NewSender(cfg.Address)
-	metricsGetter := &runtimeinfo.Getter{}
 
+	metricsGetter := &runtimeinfo.Getter{}
 	collector := metrics.NewCollector(metricsGetter)
+
 	a := agent.NewAgent(newSender, collector, cfg.PollInterval, cfg.ReportInterval)
 
 	log.Println("Agent started with the following parameters:")
