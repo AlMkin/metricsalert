@@ -1,4 +1,3 @@
-// main.go для агента
 package main
 
 import (
