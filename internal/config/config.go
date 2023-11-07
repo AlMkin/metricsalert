@@ -36,7 +36,7 @@ func ensureHTTPPrefix(serverAddress string) string {
 }
 
 func GetConfig() Config {
-	serverAddressPtr := flag.String("a", "localhost:8080", "address of the metrics server")
+	serverAddressPtr := flag.String("a", ":8080", "address of the metrics server")
 	reportIntervalPtr := flag.Int("r", DefaultReportInterval, "report interval in seconds")
 	pollIntervalPtr := flag.Int("p", DefaultPollInterval, "poll interval in seconds")
 
