@@ -9,7 +9,6 @@ import (
 )
 
 const (
-	DefaultAddress        = "http://localhost:8080"
 	DefaultReportInterval = 10
 	DefaultPollInterval   = 2
 )
@@ -36,16 +35,13 @@ func ensureHTTPPrefix(serverAddress string) string {
 }
 
 func GetConfig() Config {
-	serverAddressPtr := flag.String("a", "", "address of the metrics server")
+	serverAddressPtr := flag.String("a", "localhost:8080", "address of the metrics server")
 	reportIntervalPtr := flag.Int("r", DefaultReportInterval, "report interval in seconds")
 	pollIntervalPtr := flag.Int("p", DefaultPollInterval, "poll interval in seconds")
 
 	flag.Parse()
 
 	address := os.Getenv("ADDRESS")
-	if address == "" {
-		address = DefaultAddress
-	}
 	reportInterval := time.Duration(getEnvAsInt("REPORT_INTERVAL", DefaultReportInterval)) * time.Second
 	pollInterval := time.Duration(getEnvAsInt("POLL_INTERVAL", DefaultPollInterval)) * time.Second
 

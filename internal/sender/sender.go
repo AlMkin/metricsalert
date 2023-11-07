@@ -15,13 +15,13 @@ type MetricSender interface {
 	Send(metrics []metrics.Metric)
 }
 
-var _ MetricSender = (*Sender)(nil)
-
 func NewSender(serverAddress string) *Sender {
 	return &Sender{
 		serverAddress: serverAddress,
 	}
 }
+
+var _ MetricSender = (*Sender)(nil)
 
 func (s *Sender) Send(metrics []metrics.Metric) {
 	for _, m := range metrics {
