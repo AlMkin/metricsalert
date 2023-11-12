@@ -22,10 +22,14 @@ jobs:
   lint:
     name: Lint with golangci-lint
     runs-on: ubuntu-latest
-    container: golang:1.21
     steps:
       - name: Check out code
         uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.21.3'
 
       - name: Install golangci-lint
         run: |
@@ -33,7 +37,7 @@ jobs:
 
       - name: Run golangci-lint
         run: |
-          golangci-lint run --config .golangci.yml -buildvcs=false
+          golangci-lint run --config .golangci.yml
 
   code-coverage:
     name: Code Coverage Report
