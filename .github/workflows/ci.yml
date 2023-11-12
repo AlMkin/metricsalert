@@ -15,8 +15,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Check code formatting with gofmt
-        uses: jdreaver/check-gofmt@v1
+      - name: Check code formatting using gofmt
+        uses: Jerome1337/gofmt-action@v1.0.5
+
 
   lint:
     name: Lint with golangci-lint
@@ -29,8 +30,9 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
+          fetch-depth: 0
           version: v1.55.2
-          args: --config .golangci.yml -buildvcs=false
+          args: --config .golangci.yml
 
   code-coverage:
     name: Code Coverage Report
