@@ -6,6 +6,7 @@ import (
 	"github.com/AlMkin/metricsalert/internal/server"
 	"github.com/AlMkin/metricsalert/internal/storage"
 	"github.com/AlMkin/metricsalert/pkg/config"
+	"log"
 )
 
 func main() {
@@ -20,6 +21,6 @@ func main() {
 
 	srv := server.NewServer()
 	if err := srv.Run(addr); err != nil {
-		panic(err)
+		log.Fatalf("Server failed to start: %v", err)
 	}
 }
