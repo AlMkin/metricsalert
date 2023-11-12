@@ -19,10 +19,10 @@ func pointerToFloat64(value float64) *float64 {
 
 func TestUpdateMetricsHandler(t *testing.T) {
 	memStorage := storage.NewMemStorage()
-	handlers.SetRepository(memStorage)
+	handler := handlers.NewHandler(memStorage)
 
 	r := chi.NewRouter()
-	r.Post("/update/{type}/{name}/{value}", handlers.UpdateMetricsHandler)
+	r.Post("/update/{type}/{name}/{value}", handler.UpdateMetricsHandler)
 
 	testCases := []struct {
 		name            string
@@ -62,20 +62,16 @@ func TestUpdateMetricsHandler(t *testing.T) {
 					t.Errorf("Expected counter value to be %v, got %v", *tc.expectedCounter, value)
 				}
 			}
-
-			// Сброс состояния хранилища перед следующим тестом
-			memStorage = storage.NewMemStorage()
-			handlers.SetRepository(memStorage)
 		})
 	}
 }
 
 func TestGetMetricsHandler(t *testing.T) {
 	memStorage := storage.NewMemStorage()
-	handlers.SetRepository(memStorage)
+	handler := handlers.NewHandler(memStorage)
 
 	r := chi.NewRouter()
-	r.Get("/value/{type}/{name}", handlers.GetMetricsHandler)
+	r.Get("/value/{type}/{name}", handler.GetMetricsHandler)
 
 	// Добавляем реальные значения в хранилище
 	memStorage.SaveGauge("testGauge", 42.42)

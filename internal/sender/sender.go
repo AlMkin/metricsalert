@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type Sender struct {
+type sender struct {
 	serverAddress string
 }
 
@@ -16,10 +16,10 @@ type MetricSender interface {
 	Send(metrics []metrics.Metric)
 }
 
-var _ MetricSender = (*Sender)(nil)
+var _ MetricSender = (*sender)(nil)
 
-func NewSender(serverAddress string) *Sender {
-	return &Sender{
+func NewSender(serverAddress string) MetricSender {
+	return &sender{
 		serverAddress: ensureHTTPPrefix(serverAddress),
 	}
 }
@@ -31,7 +31,7 @@ func ensureHTTPPrefix(serverAddress string) string {
 	return serverAddress
 }
 
-func (s *Sender) Send(metrics []metrics.Metric) {
+func (s *sender) Send(metrics []metrics.Metric) {
 	for _, m := range metrics {
 		body := bytes.NewBufferString(fmt.Sprintf("%s/update/%s/%s/%f", s.serverAddress, m.Type, m.Name, m.Value))
 		response, err := http.Post(body.String(), "text/plain", nil)

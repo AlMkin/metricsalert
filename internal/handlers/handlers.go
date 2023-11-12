@@ -8,14 +8,17 @@ import (
 	"strconv"
 )
 
-var repo storage.Repository
-
-type MetricsData struct {
-	Gauges   map[string]float64
-	Counters map[string]int64
+type Handler struct {
+	Repo storage.Repository
 }
 
-func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
+func NewHandler(repo storage.Repository) *Handler {
+	return &Handler{
+		Repo: repo,
+	}
+}
+
+func (h *Handler) UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	metricType := chi.URLParam(r, "type")
 	metricName := chi.URLParam(r, "name")
 	metricValue := chi.URLParam(r, "value")
@@ -27,7 +30,7 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		repo.SaveGauge(metricName, value)
+		h.Repo.SaveGauge(metricName, value)
 
 	case "counter":
 		value, err := strconv.ParseInt(metricValue, 10, 64)
@@ -35,7 +38,7 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		repo.SaveCounter(metricName, value)
+		h.Repo.SaveCounter(metricName, value)
 
 	default:
 		w.WriteHeader(http.StatusBadRequest)
@@ -45,13 +48,13 @@ func UpdateMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	metricType := chi.URLParam(r, "type")
 	metricName := chi.URLParam(r, "name")
 
 	switch metricType {
 	case "gauge":
-		value, ok := repo.GetGauge(metricName)
+		value, ok := h.Repo.GetGauge(metricName)
 		if !ok {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -63,7 +66,7 @@ func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "counter":
-		value, ok := repo.GetCounter(metricName)
+		value, ok := h.Repo.GetCounter(metricName)
 		if !ok {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -80,8 +83,8 @@ func GetMetricsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ListMetricsHandler(w http.ResponseWriter, _ *http.Request) {
-	gauges, counters := repo.GetAllMetrics()
+func (h *Handler) ListMetricsHandler(w http.ResponseWriter, r *http.Request) {
+	gauges, counters := h.Repo.GetAllMetrics()
 
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
@@ -103,8 +106,4 @@ func ListMetricsHandler(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-}
-
-func SetRepository(storage storage.Repository) {
-	repo = storage
 }

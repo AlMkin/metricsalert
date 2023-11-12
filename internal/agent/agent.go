@@ -11,6 +11,7 @@ type Agent struct {
 	collector      metrics.MetricCollector
 	pollInterval   time.Duration
 	reportInterval time.Duration
+	stopChan       chan struct{}
 }
 
 func NewAgent(s sender.MetricSender, c metrics.MetricCollector, poll time.Duration, report time.Duration) *Agent {
@@ -19,6 +20,7 @@ func NewAgent(s sender.MetricSender, c metrics.MetricCollector, poll time.Durati
 		collector:      c,
 		pollInterval:   poll,
 		reportInterval: report,
+		stopChan:       make(chan struct{}),
 	}
 }
 
@@ -30,6 +32,8 @@ func (a *Agent) Run() {
 
 	for {
 		select {
+		case <-a.stopChan:
+			return
 		case <-pollTicker.C:
 			a.collector.Collect()
 		case <-reportTicker.C:
@@ -38,4 +42,8 @@ func (a *Agent) Run() {
 			a.collector.ResetMetrics()
 		}
 	}
+}
+
+func (a *Agent) Stop() {
+	close(a.stopChan)
 }

@@ -11,7 +11,7 @@ type MetricCollector interface {
 	ResetMetrics()
 }
 
-type Collector struct {
+type collector struct {
 	metrics       []Metric
 	pollCount     int64
 	randomValue   float64
@@ -22,8 +22,8 @@ type Getter interface {
 	GetRuntimeMetrics() runtimeinfo.Stats
 }
 
-func NewCollector(metricsGetter Getter) *Collector {
-	return &Collector{
+func NewCollector(metricsGetter Getter) MetricCollector {
+	return &collector{
 		randomValue:   rand.Float64(),
 		metricsGetter: metricsGetter,
 	}
@@ -35,24 +35,24 @@ type Metric struct {
 	Value float64
 }
 
-var _ MetricCollector = (*Collector)(nil)
+var _ MetricCollector = (*collector)(nil)
 
-func (c *Collector) Collect() {
+func (c *collector) Collect() {
 	stats := c.metricsGetter.GetRuntimeMetrics()
 	c.pollCount++
 	c.randomValue = rand.Float64()
-	c.metrics = append(c.metrics, convertToMetricSlice(stats, c.pollCount, c.randomValue)...)
+	c.metrics = append(c.metrics, c.convertToMetricSlice(stats)...)
 }
 
-func (c *Collector) GetMetrics() []Metric {
+func (c *collector) GetMetrics() []Metric {
 	return c.metrics
 }
 
-func (c *Collector) ResetMetrics() {
+func (c *collector) ResetMetrics() {
 	c.metrics = nil
 }
 
-func convertToMetricSlice(memStats runtimeinfo.Stats, pollCount int64, randomValue float64) []Metric {
+func (c *collector) convertToMetricSlice(memStats runtimeinfo.Stats) []Metric {
 	metrics := []Metric{
 		{Type: "gauge", Name: "Alloc", Value: float64(memStats.Alloc)},
 		{Type: "gauge", Name: "BuckHashSys", Value: float64(memStats.BuckHashSys)},
@@ -82,7 +82,7 @@ func convertToMetricSlice(memStats runtimeinfo.Stats, pollCount int64, randomVal
 		{Type: "gauge", Name: "Sys", Value: float64(memStats.Sys)},
 		{Type: "gauge", Name: "TotalAlloc", Value: float64(memStats.TotalAlloc)},
 	}
-	metrics = append(metrics, Metric{Type: "counter", Name: "PollCount", Value: float64(pollCount)})
-	metrics = append(metrics, Metric{Type: "gauge", Name: "RandomValue", Value: randomValue})
+	metrics = append(metrics, Metric{Type: "counter", Name: "PollCount", Value: float64(c.pollCount)})
+	metrics = append(metrics, Metric{Type: "gauge", Name: "RandomValue", Value: c.randomValue})
 	return metrics
 }

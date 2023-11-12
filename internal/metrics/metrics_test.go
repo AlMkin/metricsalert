@@ -2,32 +2,26 @@ package metrics_test
 
 import (
 	"github.com/AlMkin/metricsalert/internal/metrics"
+	"github.com/AlMkin/metricsalert/mocks"
 	"github.com/AlMkin/metricsalert/pkg/runtimeinfo"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"go.uber.org/mock/gomock"
 	"math/rand"
 	"testing"
 	"time"
 )
 
-type MockGetter struct {
-	mock.Mock
-}
-
-func (m *MockGetter) GetRuntimeMetrics() runtimeinfo.Stats {
-	args := m.Called()
-	return args.Get(0).(runtimeinfo.Stats)
-}
-
-// TestCollectorCollect проверяет, что метод Collect правильно собирает метрики.
 func TestCollectorCollect(t *testing.T) {
-	mockGetter := new(MockGetter)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockGetter := mock_getter.NewMockGetter(ctrl)
 	rand.NewSource(time.Now().UnixNano())
 	expectedStats := runtimeinfo.Stats{
 		Alloc:      1024,
 		TotalAlloc: 2048,
 	}
-	mockGetter.On("GetRuntimeMetrics").Return(expectedStats)
+	mockGetter.EXPECT().GetRuntimeMetrics().Return(expectedStats).Times(1)
 
 	collector := metrics.NewCollector(mockGetter)
 	collector.Collect()
@@ -35,7 +29,6 @@ func TestCollectorCollect(t *testing.T) {
 	getMetrics := collector.GetMetrics()
 	assert.NotEmpty(t, getMetrics, "Metrics should not be empty after collection")
 
-	// Проверяем, что метрика PollCount увеличивается с каждым вызовом Collect.
 	expectedPollCount := 1.0
 	foundPollCountMetric := false
 	delta := 0.001
