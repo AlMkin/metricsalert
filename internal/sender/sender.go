@@ -11,6 +11,7 @@ import (
 type Sender struct {
 	serverAddress string
 }
+
 type MetricSender interface {
 	Send(metrics []metrics.Metric)
 }

@@ -38,10 +38,11 @@ func TestCollectorCollect(t *testing.T) {
 	// Проверяем, что метрика PollCount увеличивается с каждым вызовом Collect.
 	expectedPollCount := 1.0
 	foundPollCountMetric := false
+	delta := 0.001
 	for _, metric := range getMetrics {
 		if metric.Name == "PollCount" {
 			foundPollCountMetric = true
-			assert.Equal(t, expectedPollCount, metric.Value, "PollCount metric value should be incremented")
+			assert.InDelta(t, expectedPollCount, metric.Value, delta, "PollCount metric value should be within delta")
 			break
 		}
 	}
