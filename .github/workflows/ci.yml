@@ -1,4 +1,4 @@
-name: golangci-lint
+name: Continuous Integration
 
 on:
   pull_request:
@@ -7,16 +7,40 @@ on:
       - main
 
 jobs:
-  golangci:
-    name: lint
+  code-formatting:
+    name: Code Formatting Check
     runs-on: ubuntu-latest
     container: golang:1.21
     steps:
-      - name: Check out code into the Go module directory
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Check code formatting with gofmt
+        uses: jdreaver/check-gofmt@v1
+
+  lint:
+    name: Lint with golangci-lint
+    runs-on: ubuntu-latest
+    container: golang:1.21
+    steps:
+      - name: Check out code
         uses: actions/checkout@v2
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.55.2
-          args: --config .golangci.yml
+          args: --config .golangci.yml -buildvcs=false
+
+  code-coverage:
+    name: Code Coverage Report
+    runs-on: ubuntu-latest
+    needs: [code-formatting, lint]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
