@@ -26,11 +26,12 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          fetch-depth: 0
           version: v1.55.2
           args: --config .golangci.yml
 

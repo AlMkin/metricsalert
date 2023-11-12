@@ -9,9 +9,3 @@ linters:
     - gocyclo
     - errcheck
     - testifylint
-
-issues:
-  exclude-rules:
-    - linters:
-        - golint
-      text: "should have comment or be unexported"
